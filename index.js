@@ -1,0 +1,79 @@
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config();
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+// ---------------------------
+//!  Middleware
+// ---------------------------
+app.use(cors());
+app.use(express.json());
+
+// ---------------------------
+//!  MongoDB Connection
+// ---------------------------
+// const uri =
+//   "mongodb+srv://BidDokanDB:ajGXtiNnb0zsRJ2m@simpleproject.deo4wzy.mongodb.net/?appName=SimpleProject";
+const uri = `mongodb+srv://${process.env.SHARE_BITE_USER}:${process.env.SHARE_BITE_kEY}@simpleproject.deo4wzy.mongodb.net/?appName=SimpleProject`;
+
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
+
+// ---------------------------
+//!  Run Main Function
+// ---------------------------
+async function run() {
+  try {
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+
+    // Database & Collections
+    const db = client.db("Sharebite");
+    const allProductsCollection = db.collection("all-food-data");
+
+    // !popular food data
+    app.get("/popular-food-data", async (req, res) => {
+      const allProducts = await allProductsCollection.find().limit(6).toArray();
+      res.send(allProducts);
+    });
+
+    //! all food data
+    app.get("/all-food-data", async (req, res) => {
+      const allProducts = await allProductsCollection.find().toArray();
+      res.send(allProducts);
+    });
+
+    //! food details data
+    app.get("/food-details/:id", async (req, res) => {
+      const { id } = req.params;
+      const query = { _id: new ObjectId(id) };
+      const result = await allProductsCollection.findOne(query);
+      res.send(result);
+    });
+
+    // Send a ping to confirm a successful connection
+    await client.db("admin").command({ ping: 1 });
+    console.log(
+      "Pinged your deployment. You successfully connected to MongoDB!"
+    );
+  } finally {
+    // Ensures that the client will close when you finish/error
+    // await client.close();
+  }
+}
+run().catch(console.dir);
+
+// ---------------------------
+//  Server Listen
+// ---------------------------
+app.listen(port, () => {
+  console.log(`Server running on port: ${port}`);
+});
