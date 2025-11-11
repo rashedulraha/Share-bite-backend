@@ -15,8 +15,7 @@ app.use(express.json());
 // ---------------------------
 //!  MongoDB Connection
 // ---------------------------
-// const uri =
-//   "mongodb+srv://BidDokanDB:ajGXtiNnb0zsRJ2m@simpleproject.deo4wzy.mongodb.net/?appName=SimpleProject";
+
 const uri = `mongodb+srv://${process.env.SHARE_BITE_USER}:${process.env.SHARE_BITE_kEY}@simpleproject.deo4wzy.mongodb.net/?appName=SimpleProject`;
 
 const client = new MongoClient(uri, {
@@ -96,6 +95,31 @@ async function run() {
         console.error(error);
         res.status(500).send({ message: "Internal server error" });
       }
+    });
+
+    //!  delete food data
+    app.delete("/delete-food-data/:id", async (req, res) => {
+      const { id } = req.params;
+      const foodDataId = { _id: new ObjectId(id) };
+      const result = await allProductsCollection.deleteOne(foodDataId);
+      res.send(result);
+    });
+
+    //! update food data
+    app.put("/update-food/:id", async (req, res) => {
+      const { id } = req.params;
+      const updateId = { _id: new ObjectId(id) };
+      const data = req.body;
+
+      const updateFood = {
+        $set: data,
+      };
+
+      const result = await allProductsCollection.updateOne(
+        updateId,
+        updateFood
+      );
+      res.send(result);
     });
 
     // Send a ping to confirm a successful connection
