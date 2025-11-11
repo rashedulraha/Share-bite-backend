@@ -45,10 +45,17 @@ async function run() {
       res.send(allProducts);
     });
 
-    //! all food data
+    //! get all food data
     app.get("/all-food-data", async (req, res) => {
       const allProducts = await allProductsCollection.find().toArray();
       res.send(allProducts);
+    });
+
+    // post single food data
+    app.post("/all-food-data", async (req, res) => {
+      const foodData = req.body;
+      const result = await allProductsCollection.insertOne(foodData);
+      res.status(201).send(result);
     });
 
     //! food details data
@@ -56,6 +63,16 @@ async function run() {
       const { id } = req.params;
       const query = { _id: new ObjectId(id) };
       const result = await allProductsCollection.findOne(query);
+      res.send(result);
+    });
+
+    //! find donation person data
+    app.get("/donar-profile/:id", async (req, res) => {
+      const { id } = req.params;
+      const query = { _id: new ObjectId(id) };
+      const projection = { donor: 1, _id: 0 };
+
+      const result = await allProductsCollection.findOne(query, { projection });
       res.send(result);
     });
 
