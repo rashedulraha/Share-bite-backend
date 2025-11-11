@@ -76,6 +76,28 @@ async function run() {
       res.send(result);
     });
 
+    //!  get my  listing food find by email
+
+    app.get("/my-listings", async (req, res) => {
+      try {
+        const email = req.query.email;
+        if (!email) {
+          return res
+            .status(400)
+            .send({ message: "Email query parameter missing" });
+        }
+
+        const result = await allProductsCollection
+          .find({ "donor.email": email })
+          .toArray();
+
+        res.send(result);
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: "Internal server error" });
+      }
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
