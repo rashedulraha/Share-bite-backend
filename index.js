@@ -1,10 +1,18 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+
+const admin = require("firebase-admin");
+const serviceAccount = require("./serviceKey.json");
+
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 // ---------------------------
 //!  Middleware
@@ -37,6 +45,7 @@ async function run() {
     // Database & Collections
     const db = client.db("Sharebite");
     const allProductsCollection = db.collection("all-food-data");
+    const foodRequestCollection = db.collection("foodRequests");
 
     // !popular food data
     app.get("/popular-food-data", async (req, res) => {
@@ -50,7 +59,14 @@ async function run() {
       res.send(allProducts);
     });
 
-    // post single food data
+    //!  all request
+
+    app.get("/request-food", async (req, res) => {
+      const result = await foodRequestCollection.find().toArray();
+      res.send(result);
+    });
+
+    //! post single food data
     app.post("/all-food-data", async (req, res) => {
       const foodData = req.body;
       const result = await allProductsCollection.insertOne(foodData);
@@ -120,6 +136,13 @@ async function run() {
         updateFood
       );
       res.send(result);
+    });
+
+    //!  post request food to daa base
+    app.post("/food-requests", async (req, res) => {
+      const requestData = req.body;
+      const result = foodRequestCollection.insertOne(requestData);
+      res.status(401).send(result);
     });
 
     // Send a ping to confirm a successful connection
