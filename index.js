@@ -71,7 +71,7 @@ async function run() {
     const requestsCollection = db.collection("foodRequests");
 
     // -----------------------
-    //! PUBLIC ROUTES (No Auth)
+    //? PUBLIC ROUTES (No Auth)
     // -----------------------
 
     //! GET: Popular Foods (Home Page)
@@ -115,7 +115,7 @@ async function run() {
     });
 
     // -----------------------
-    //! PROTECTED ROUTES (Auth + Ownership)
+    //? PROTECTED ROUTES (Auth + Ownership)
     // -----------------------
 
     //! GET: Food Details (Only Logged In)
@@ -294,7 +294,7 @@ async function run() {
     });
 
     // -----------------------
-    // Health Check
+    //? Health Check
     // -----------------------
     app.get("/", (req, res) => {
       res.json({
