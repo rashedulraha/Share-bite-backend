@@ -14,7 +14,12 @@ const port = process.env.PORT || 3000;
 
 //! Firebase Admin Setup
 // ---------------------------
-const serviceAccount = require("./serviceKey.json");
+const decoded = Buffer.from(
+  process.env.FIREBASE_SERVICE_KEY,
+  "base64"
+).toString("utf8");
+const serviceAccount = JSON.parse(decoded);
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
@@ -304,8 +309,8 @@ async function run() {
     });
 
     // Ping MongoDB
-    await client.db("admin").command({ ping: 1 });
-    console.log("MongoDB Ping Successful!");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("MongoDB Ping Successful!");
   } catch (error) {
     console.error("Failed to start server:", error.message);
     process.exit(1);
