@@ -319,10 +319,3 @@ run().then(() => {
     console.log(`Server running at http://localhost:${port}`);
   });
 });
-
-//! Graceful Shutdown
-process.on("SIGINT", async () => {
-  console.log("\nShutting down...");
-  await client.close();
-  process.exit(0);
-});
