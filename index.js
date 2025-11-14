@@ -68,8 +68,8 @@ const verifyToken = async (req, res, next) => {
 // ---------------------------
 async function run() {
   try {
-    await client.connect();
-    console.log("Connected to MongoDB!");
+    // await client.connect();
+    // console.log("Connected to MongoDB!");
 
     const db = client.db("Sharebite");
     const foodsCollection = db.collection("all-food-data");
@@ -245,36 +245,11 @@ async function run() {
     });
 
     //! POST: Request Food (Only Logged In)
-    app.post("/food-requests", verifyToken, async (req, res) => {
+    app.post("/food-requests", async (req, res) => {
+      console.log(req.body);
+
       try {
-        const {
-          foodId,
-          donorEmail,
-          donorName,
-          foodName,
-          foodImage,
-          expiryDate,
-        } = req.body;
-
-        if (!foodId || !donorEmail) {
-          return res
-            .status(400)
-            .json({ message: "Food ID and donor email required" });
-        }
-
-        const request = {
-          foodId: new ObjectId(foodId),
-          foodName,
-          foodImage,
-          expiryDate,
-          donorEmail,
-          donorName,
-          requesterEmail: req.user.email,
-          requesterName: req.user.name,
-          requestDate: new Date(),
-          status: "pending",
-        };
-
+        const request = req.body;
         const result = await requestsCollection.insertOne(request);
         res.status(201).json({ success: true, insertedId: result.insertedId });
       } catch (err) {
@@ -283,18 +258,18 @@ async function run() {
       }
     });
 
-    //! GET: My Food Requests (Donor sees who requested)
-    app.get("/food-requests", verifyToken, async (req, res) => {
+    app.get("/food-requests", async (req, res) => {
       try {
-        const donorEmail = req.user.email;
+        const userEmail = req.query.email;
+
         const requests = await requestsCollection
-          .find({ donorEmail })
+          .find({ donorEmail: userEmail })
           .sort({ requestDate: -1 })
           .toArray();
+
         res.json(requests);
       } catch (err) {
-        console.error("Get Requests Error:", err.message);
-        res.status(500).json({ message: "Failed to fetch requests" });
+        res.status(500).send({ message: "Failed to fetch requests" });
       }
     });
 
